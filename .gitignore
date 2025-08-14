@@ -1,0 +1,27 @@
+# Android Studio
+.gradle
+/build/
+/captures/
+.DS_Store
+/local.properties
+.idea/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+*.iws
+*.iml
+*.ipr
+
+# Google Services
+google-services.json
+
+# Keystore files
+*.jks
+*.keystore
+
+# Local configuration
+local.properties
+
