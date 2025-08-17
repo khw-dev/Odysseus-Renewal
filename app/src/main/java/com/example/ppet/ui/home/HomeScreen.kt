@@ -30,10 +30,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.ppet.R
 import com.example.ppet.data.model.Pet as DataPet
-import com.example.ppet.model.PetCharacter
 import com.example.ppet.ui.home.viewmodel.PetViewModel
 import com.example.ppet.ui.theme.NotoSansKR
 import com.example.ppet.ui.theme.OrangePrimary
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
 
 @Composable
 fun HomeScreen(
@@ -44,68 +46,49 @@ fun HomeScreen(
     onNavigateToHealthRecord: (DataPet) -> Unit = {},
     onNavigateToNotification: () -> Unit = {},
     onNavigateToLocationSetting: () -> Unit = {},
-    petViewModel: PetViewModel = hiltViewModel(), // remember 대신 hiltViewModel 사용
+    petViewModel: PetViewModel = hiltViewModel(),
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val pets by petViewModel.pets.collectAsState()
     val selectedPet by petViewModel.selectedPet.collectAsState()
     val currentCharacter by homeViewModel.currentCharacter.collectAsState()
 
-    LazyColumn(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .background(Color.White)
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
-        item {
-            // 헤더
-            HomeHeader(
-                userName = userName ?: "사용자",
-                currentCharacter = currentCharacter,
-                onNotificationClick = onNavigateToNotification,
-                onLocationClick = onNavigateToLocationSetting
-            )
-        }
+        TodayTipSection()
 
-        item {
-            // 내 반려동물 섹션
-            MyPetsSection(
-                pets = pets,
-                onAddPet = onNavigateToAddPet,
-                onPetClick = { pet ->
-                    petViewModel.selectPet(pet)
-                    onNavigateToHealthRecord(pet)
-                }
-            )
-        }
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
+            item {
+                HomeHeader(
+                    userName = userName ?: "사용자",
+                    currentCharacter = currentCharacter,
+                    onNotificationClick = onNavigateToNotification,
+                    onLocationClick = onNavigateToLocationSetting
+                )
+            }
 
-        item {
-            // 빠른 기능 버튼들
-            QuickActionsSection(
-                onNavigateToAround = onNavigateToAround,
-                onHealthRecordClick = {
-                    selectedPet?.let { pet: DataPet ->
+            item {
+                MyPetsSection(
+                    pets = pets,
+                    onAddPet = onNavigateToAddPet,
+                    onPetClick = { pet ->
+                        petViewModel.selectPet(pet)
                         onNavigateToHealthRecord(pet)
-                    } ?: run {
-                        // 반려동물이 선택되지 않은 경우 첫 번째 반려동물 선택
-                        pets.firstOrNull()?.let { firstPet: DataPet ->
-                            petViewModel.selectPet(firstPet)
-                            onNavigateToHealthRecord(firstPet)
-                        }
                     }
-                }
-            )
-        }
+                )
+            }
 
-        item {
-            // 오늘의 팁
-            TodayTipSection()
-        }
-
-        item {
-            // 최근 활동
-            RecentActivitySection(pets = pets)
+            item {
+                RecentActivitySection(pets = pets)
+            }
         }
     }
 }
@@ -124,18 +107,24 @@ private fun HomeHeader(
     ) {
         Column {
             Text(
-                text = "안녕하세요",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                fontFamily = NotoSansKR,
-                color = Color.Gray
-            )
-            Text(
-                text = "${userName}님!",
-                fontSize = 24.sp,
+                text = "안녕하세요,",
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 fontFamily = NotoSansKR,
                 color = Color.Black
+            )
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(color = OrangePrimary)) {
+                        append(userName)
+                    }
+                    withStyle(style = SpanStyle(color = Color.Black)) {
+                        append(" 님!")
+                    }
+                },
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = NotoSansKR
             )
         }
 
@@ -255,9 +244,7 @@ private fun PetCard(
             modifier = Modifier.padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 캐릭터 이미지 또는 반려동물 이미지
             if (petCharacter != null) {
-                // 선택된 캐릭터 이미지 표시
                 Box(
                     modifier = Modifier
                         .size(60.dp)
@@ -273,7 +260,6 @@ private fun PetCard(
                     )
                 }
             } else if (pet.imageUrl != null) {
-                // 실제 반려동물 이미지 표시
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(pet.imageUrl)
@@ -286,7 +272,6 @@ private fun PetCard(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                // 기본 아이콘 표시
                 Surface(
                     modifier = Modifier.size(60.dp),
                     shape = CircleShape,
@@ -320,91 +305,6 @@ private fun PetCard(
                 fontFamily = NotoSansKR,
                 color = Color.Gray
             )
-
-            // 캐릭터 이름 표시 (선택적)
-            if (petCharacter != null) {
-                Text(
-                    text = "🎭 ${petCharacter.name}",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF6200EE),
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun QuickActionsSection(
-    onNavigateToAround: () -> Unit,
-    onHealthRecordClick: () -> Unit
-) {
-    Column {
-        Text(
-            text = "빠른 기능",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = NotoSansKR,
-            color = Color.Black
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            QuickActionCard(
-                title = "병원 찾기",
-                description = "주변 동물병원 검색",
-                color = OrangePrimary,
-                modifier = Modifier.weight(1f)
-            ) { onNavigateToAround() }
-
-            QuickActionCard(
-                title = "건강 기록",
-                description = "접종 및 진료 기록",
-                color = Color(0xFF4CAF50),
-                modifier = Modifier.weight(1f)
-            ) { onHealthRecordClick() }
-        }
-    }
-}
-
-@Composable
-private fun QuickActionCard(
-    title: String,
-    description: String,
-    color: Color,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Surface(
-        modifier = modifier.clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        color = color.copy(alpha = 0.1f)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = NotoSansKR,
-                color = color
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = description,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Normal,
-                fontFamily = NotoSansKR,
-                color = color.copy(alpha = 0.7f)
-            )
         }
     }
 }
@@ -412,31 +312,41 @@ private fun QuickActionCard(
 @Composable
 private fun TodayTipSection() {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = Color(0xFFF8F9FA)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 20.dp)
+            .background(
+                color = Color(0xFFF7F7F7),
+            ),
+        color = Color.Transparent
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "💡 오늘의 팁",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = NotoSansKR,
-                color = Color.Black
+            Image(
+                painter = painterResource(id = R.drawable.ic_fluent_dog),
+                contentDescription = "배너 아이콘",
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.width(17.dp))
 
-            Text(
-                text = "반려동물의 건강한 겨울나기를 위해 실내 온도를 20-22도로 유지해주세요. 급격한 온도 변화는 스트레스의 원인이 될 수 있습니다.",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                fontFamily = NotoSansKR,
-                color = Color.Gray,
-                lineHeight = 20.sp
-            )
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "중요한 소식이 있어요!",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = NotoSansKR,
+                    color = Color(0xFF424242),
+                    lineHeight = 18.sp
+                )
+            }
         }
     }
 }
@@ -501,7 +411,6 @@ private fun ActivityItem(activity: Activity) {
     }
 }
 
-// 데이터 클래스들
 data class Activity(
     val id: String,
     val title: String,
