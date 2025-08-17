@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,10 +40,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.ppet.R
 import com.example.ppet.auth.GoogleSignInManager
 import com.example.ppet.ui.theme.NotoSansKR
+import com.example.ppet.ui.viewmodel.AuthViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 enum class AppState {
     SPLASH,
@@ -52,17 +56,22 @@ enum class AppState {
 }
 
 @Composable
-fun SplashScreen() {
+fun SplashScreen(
+    authViewModel: AuthViewModel = hiltViewModel()
+) {
     var appState by remember { mutableStateOf(AppState.SPLASH) }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val googleSignInManager = remember { GoogleSignInManager(context) }
-    val signInState by googleSignInManager.signInState.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val signInState by authViewModel.signInState.collectAsState()
 
     val signInLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
-        googleSignInManager.handleSignInResult(result.data)
+        coroutineScope.launch {
+            authViewModel.handleSignInResult(result.data)
+        }
     }
 
     LaunchedEffect(signInState) {
@@ -77,8 +86,7 @@ fun SplashScreen() {
 
     LaunchedEffect(Unit) {
         delay(1500L)
-
-        googleSignInManager.checkLastSignedIn()
+        authViewModel.checkLastSignedIn()
 
         delay(500L)
         if (signInState?.isSuccess == true) {
@@ -98,7 +106,7 @@ fun SplashScreen() {
                 onLoginClick = {
                     if (!isLoading) {
                         isLoading = true
-                        val signInIntent = googleSignInManager.getSignInIntent()
+                        val signInIntent = authViewModel.getSignInIntent()
                         signInLauncher.launch(signInIntent)
                     }
                 }
@@ -120,7 +128,10 @@ fun SplashScreen() {
                 MainTabScreen(
                     userInfo = userInfo,
                     onSignOut = {
-                        googleSignInManager.signOut()
+                        coroutineScope.launch {
+                            authViewModel.signOut()
+                        }
+                        Toast.makeText(context, "로그아웃 되었습니다.", Toast.LENGTH_SHORT).show()
                         appState = AppState.LOGIN
                     }
                 )

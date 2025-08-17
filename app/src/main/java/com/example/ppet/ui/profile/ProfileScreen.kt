@@ -7,8 +7,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
@@ -174,7 +174,7 @@ fun ProfileScreen(
                 SettingsSection(
                     title = "기타",
                     items = listOf(
-                        SettingItem("로그아웃", Icons.Default.ExitToApp, isLogout = true) {
+                        SettingItem("로그아웃", Icons.AutoMirrored.Filled.ExitToApp, isLogout = true) {
                             onSignOut()
                         }
                     )
@@ -334,7 +334,7 @@ private fun SettingItemRow(
 
                 if (!item.isLogout) {
                     Icon(
-                        imageVector = Icons.Default.ArrowForward,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = "화살표",
                         tint = Color.Gray,
                         modifier = Modifier.size(20.dp)
@@ -344,7 +344,7 @@ private fun SettingItemRow(
         }
 
         if (showDivider) {
-            Divider(
+            HorizontalDivider(
                 color = Color(0xFFF0F0F0),
                 thickness = 1.dp,
                 modifier = Modifier.padding(horizontal = 16.dp)
