@@ -28,28 +28,22 @@ object PetCharacters {
             imageRes = R.drawable.ic_pet_cat
         ),
         PetCharacter(
-            id = "cat_black",
-            name = "까망이",
-            description = "신비롭고 우아한 검은 고양이",
-            imageRes = R.drawable.ic_pet_cat
-        ),
-        PetCharacter(
             id = "dog_golden",
             name = "골댕이",
             description = "충성스럽고 친근한 골든 리트리버",
             imageRes = R.drawable.ic_pet_dog
         ),
         PetCharacter(
-            id = "rabbit_white",
-            name = "하양이",
-            description = "귀엽고 온순한 흰 토끼",
-            imageRes = R.drawable.ic_pet_cat 
+            id = "turtle",
+            name = "거북이",
+            description = "느긋하고 똑똑한 거북이",
+            imageRes = R.drawable.ic_pet_turtle
         ),
         PetCharacter(
             id = "hamster_brown",
             name = "브라운",
             description = "작고 애교 많은 갈색 햄스터",
-            imageRes = R.drawable.ic_pet_cat 
+            imageRes = R.drawable.ic_pet_hamster
         )
     )
 }
