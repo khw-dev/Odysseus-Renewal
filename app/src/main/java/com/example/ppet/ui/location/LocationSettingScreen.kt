@@ -73,7 +73,6 @@ fun LocationSettingScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // 현��� 위치 정보
             currentLocation?.let { location ->
                 Surface(
                     shape = RoundedCornerShape(16.dp),
@@ -122,7 +121,6 @@ fun LocationSettingScreen(
                 }
             }
 
-            // 현재 위치 사용 버튼
             Button(
                 onClick = onCurrentLocationRequest,
                 modifier = Modifier.fillMaxWidth(),
@@ -143,10 +141,8 @@ fun LocationSettingScreen(
                 )
             }
 
-            // 구분선
             HorizontalDivider(color = Color(0xFFF0F0F0))
 
-            // 주소 검색
             Text(
                 text = "주소로 검색",
                 fontFamily = NotoSansKR,
@@ -160,13 +156,13 @@ fun LocationSettingScreen(
                 onValueChange = {
                     searchQuery = it
                     if (it.length >= 2) {
-                        // 실제 구현에서는 여기서 주소 검색 API를 호출
+                        // TODO: 주소 검색 API 호출
                         searchResults = getSampleSearchResults(it)
                     } else {
                         searchResults = emptyList()
                     }
                 },
-                label = { Text("주소를 입��하세요", fontFamily = NotoSansKR) },
+                label = { Text("주소를 입력하세요", fontFamily = NotoSansKR) },
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
@@ -177,7 +173,6 @@ fun LocationSettingScreen(
                 singleLine = true
             )
 
-            // 검색 결과
             if (searchResults.isNotEmpty()) {
                 Text(
                     text = "검색 결과",
@@ -199,7 +194,6 @@ fun LocationSettingScreen(
                 }
             }
 
-            // 자주 사용하는 위치
             if (searchQuery.isEmpty()) {
                 Text(
                     text = "자주 사용하는 위치",

@@ -78,7 +78,6 @@ class UserRepository @Inject constructor(
         return sharedPreferences.getInt(KEY_USER_EXP, 0)
     }
 
-    // 알림 설정 관련 메서드
     fun setNotificationEnabled(enabled: Boolean) {
         sharedPreferences.edit()
             .putBoolean(KEY_NOTIFICATION_ENABLED, enabled)

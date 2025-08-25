@@ -46,7 +46,6 @@ fun AroundScreen(modifier: Modifier = Modifier) {
     var currentLocation by remember { mutableStateOf<android.location.Location?>(null) }
     var locationError by remember { mutableStateOf(false) }
 
-    // 위치 권한 요청 런처
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -63,7 +62,6 @@ fun AroundScreen(modifier: Modifier = Modifier) {
         }
     }
 
-    // 초기 로딩
     LaunchedEffect(hasLocationPermission) {
         if (hasLocationPermission) {
             isLoading = true
@@ -82,7 +80,6 @@ fun AroundScreen(modifier: Modifier = Modifier) {
             .background(Color.White)
             .padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
-        // 헤더
         Text(
             text = "주변 동물병원",
             fontSize = 22.sp,
@@ -91,7 +88,6 @@ fun AroundScreen(modifier: Modifier = Modifier) {
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
-        // 현재 위치 카드
         LocationCard(
             currentLocation = currentLocation,
             hasPermission = hasLocationPermission,
@@ -108,7 +104,6 @@ fun AroundScreen(modifier: Modifier = Modifier) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // 병원 목록
         when {
             isLoading -> {
                 Box(
@@ -246,7 +241,6 @@ private fun HospitalCard(
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            // 병원명과 영업상태
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -260,23 +254,22 @@ private fun HospitalCard(
                     modifier = Modifier.weight(1f)
                 )
 
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (hospital.isOpen) Color(0xFF4CAF50) else Color(0xFFFF5722)
-                ) {
-                    Text(
-                        text = if (hospital.isOpen) "영업중" else "영업종료",
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        fontFamily = NotoSansKR,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-                    )
-                }
+//                Surface(
+//                    shape = RoundedCornerShape(8.dp),
+//                    color = if (hospital.isOpen) Color(0xFF4CAF50) else Color(0xFFFF5722)
+//                ) {
+//                    Text(
+//                        text = if (hospital.isOpen) "영업중" else "영업종료",
+//                        color = Color.White,
+//                        fontSize = 10.sp,
+//                        fontFamily = NotoSansKR,
+//                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+//                    )
+//                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 주소와 거리
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
@@ -298,7 +291,6 @@ private fun HospitalCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 평점과 영업시간
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -328,7 +320,6 @@ private fun HospitalCard(
                 )
             }
 
-            // 전문 분야
             if (hospital.specialties.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Row {
@@ -352,36 +343,35 @@ private fun HospitalCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // 전화 버튼
-            Surface(
-                onClick = {
-                    PhoneUtils.makePhoneCall(context, hospital.phoneNumber)
-                },
-                modifier = Modifier.fillMaxWidth(),
-                color = OrangePrimary,
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.padding(vertical = 12.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Phone,
-                        contentDescription = "전화",
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "전화하기",
-                        fontFamily = NotoSansKR,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
-                }
-            }
+//            Surface(
+//                onClick = {
+//                    PhoneUtils.makePhoneCall(context, hospital.phoneNumber)
+//                },
+//                modifier = Modifier.fillMaxWidth(),
+//                color = OrangePrimary,
+//                shape = RoundedCornerShape(12.dp)
+//            ) {
+//                Row(
+//                    modifier = Modifier.padding(vertical = 12.dp),
+//                    horizontalArrangement = Arrangement.Center,
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    Icon(
+//                        imageVector = Icons.Default.Phone,
+//                        contentDescription = "전화",
+//                        modifier = Modifier.size(16.dp),
+//                        tint = Color.White
+//                    )
+//                    Spacer(modifier = Modifier.width(6.dp))
+//                    Text(
+//                        text = "전화하기",
+//                        fontFamily = NotoSansKR,
+//                        fontWeight = FontWeight.Medium,
+//                        fontSize = 14.sp,
+//                        color = Color.White
+//                    )
+//                }
+//            }
         }
     }
 }
@@ -400,7 +390,7 @@ private fun loadNearbyHospitals(
             if (location != null) {
                 Log.d("AroundScreen", "위치 획득 성공: ${location.latitude}, ${location.longitude}")
 
-                // 실제 위치 기반 검색 서비스 사용
+                // TODO: 실제 위치 기반 검색
                 val searchService = VetHospitalSearchService(locationManager.context)
                 val hospitals = searchService.searchNearbyVetHospitals(location)
 
@@ -415,12 +405,10 @@ private fun loadNearbyHospitals(
                 onResult(location, hospitals, false)
             } else {
                 Log.w("AroundScreen", "위치 획득 실패")
-                // 위치를 가져올 수 없는 경우
                 onResult(null, emptyList(), true)
             }
         } catch (e: Exception) {
             Log.e("AroundScreen", "병원 검색 중 오류 발생", e)
-            // 예외 발생 시 오류 처리
             onResult(null, emptyList(), true)
         }
     }

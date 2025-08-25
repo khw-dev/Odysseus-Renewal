@@ -63,7 +63,6 @@ fun NotificationSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                // 전체 푸시 알림 설정
                 NotificationSection(
                     title = "푸시 알림",
                     items = listOf(
@@ -78,7 +77,6 @@ fun NotificationSettingsScreen(
             }
 
             item {
-                // 건강 관련 알림
                 NotificationSection(
                     title = "건강 관리",
                     items = listOf(
@@ -115,7 +113,6 @@ fun NotificationSettingsScreen(
             }
 
             item {
-                // 리포트 및 마케팅
                 NotificationSection(
                     title = "리포트 및 혜택",
                     items = listOf(
@@ -149,7 +146,7 @@ fun NotificationSettingsScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "💡 알림 설정 안내",
+                            text = "알림 설정 안내",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = NotoSansKR,
@@ -159,7 +156,7 @@ fun NotificationSettingsScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "• 푸시 알림을 비활성화하면 모든 알림이 차단됩니다\n• 중요한 건강 관련 알림은 활성화하는 것을 권장합니다\n• 시스템 설정에서도 알림을 관리할 수 있습니다",
+                            text = "- 푸시 알림을 비활성화하면 모든 알림이 차단됩니다\n- 중요한 건강 관련 알림은 활성화하는 것을 권장합니다\n- 시스템 설정에서도 알림을 관리할 수 있습니다",
                             fontSize = 12.sp,
                             fontFamily = NotoSansKR,
                             color = Color.Gray,

@@ -88,7 +88,6 @@ fun EditProfileScreen(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // 프로필 이미지 섹션
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
@@ -123,7 +122,6 @@ fun EditProfileScreen(
                         }
                     }
 
-                    // 카메라 아이콘
                     Surface(
                         modifier = Modifier
                             .size(36.dp)
@@ -151,7 +149,6 @@ fun EditProfileScreen(
                 )
             }
 
-            // 개인정보 입력 필드들
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -183,7 +180,6 @@ fun EditProfileScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // 저장 버튼
             Button(
                 onClick = {
                     onSave(editedName, editedEmail)
@@ -205,7 +201,6 @@ fun EditProfileScreen(
         }
     }
 
-    // 이미지 선택기 (실제 구현에서는 갤러리/카메라 선택 다이얼로그)
     if (showImagePicker) {
         AlertDialog(
             onDismissRequest = { showImagePicker = false },
@@ -218,7 +213,7 @@ fun EditProfileScreen(
             },
             text = {
                 Text(
-                    text = "현재 버전에서는 프로필 사진 변경 기능이 지원되지 않습니다.",
+                    text = "아직 프로필 사진 변경 기능을 지원하지 않습니다.",
                     fontFamily = NotoSansKR
                 )
             },

@@ -20,10 +20,8 @@ class FirebaseService @Inject constructor() {
     private val database: DatabaseReference = FirebaseDatabase.getInstance().reference
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    // 현재 사용자 ID 가져오기
     private fun getCurrentUserId(): String? = auth.currentUser?.uid
 
-    // 사용자 정보 저장
     suspend fun saveUserInfo(userInfo: UserInfo): Result<Unit> {
         return try {
             val userId = getCurrentUserId() ?: return Result.failure(Exception("User not authenticated"))
@@ -42,7 +40,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 사용자 정보 업데이트
     suspend fun updateUserInfo(updates: Map<String, Any>): Result<Unit> {
         return try {
             val userId = getCurrentUserId() ?: return Result.failure(Exception("User not authenticated"))
@@ -55,7 +52,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 펫 정보 저장
     suspend fun savePet(pet: Pet): Result<String> {
         return try {
             val userId = getCurrentUserId() ?: return Result.failure(Exception("User not authenticated"))
@@ -79,7 +75,6 @@ class FirebaseService @Inject constructor() {
 
             database.child("pets").child(pet.id).setValue(firebasePet).await()
 
-            // 사용자의 펫 목록에도 추가
             database.child("userPets").child(userId).child(pet.id).setValue(true).await()
 
             Result.success(pet.id)
@@ -88,7 +83,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 사용자의 펫 목록 가져오기
     fun getUserPets(): Flow<List<FirebasePet>> = callbackFlow {
         val userId = getCurrentUserId()
         if (userId == null) {
@@ -121,7 +115,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 건강 기록 저장
     suspend fun saveHealthRecord(healthRecord: HealthRecord): Result<String> {
         return try {
             val firebaseRecord = FirebaseHealthRecord(
@@ -140,7 +133,6 @@ class FirebaseService @Inject constructor() {
 
             database.child("healthRecords").child(healthRecord.id).setValue(firebaseRecord).await()
 
-            // 펫별 건강기록 인덱스 업데이트
             database.child("petHealthRecords").child(healthRecord.petId)
                 .child(healthRecord.id).setValue(true).await()
 
@@ -150,7 +142,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 퀘스트 저장
     suspend fun saveQuest(quest: Quest): Result<String> {
         return try {
             val userId = getCurrentUserId() ?: return Result.failure(Exception("User not authenticated"))
@@ -176,7 +167,6 @@ class FirebaseService @Inject constructor() {
 
             database.child("quests").child(quest.id).setValue(firebaseQuest).await()
 
-            // 사용자별 퀘스트 인덱스 업데이트
             database.child("userQuests").child(userId).child(quest.id).setValue(true).await()
 
             Result.success(quest.id)
@@ -185,7 +175,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 퀘스트 진행도 업데이트
     suspend fun updateQuestProgress(questId: String, progress: Int): Result<Unit> {
         return try {
             val updates = mapOf(
@@ -200,7 +189,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 퀘스트 완료 처리
     suspend fun completeQuest(questId: String): Result<Unit> {
         return try {
             val updates = mapOf(
@@ -216,7 +204,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 활동 기록 저장 (산책, 급식 등)
     suspend fun saveActivityRecord(
         petId: String,
         activityType: String,
@@ -243,7 +230,6 @@ class FirebaseService @Inject constructor() {
 
             database.child("activityRecords").child(recordId).setValue(activityRecord).await()
 
-            // 펫별 활동기록 인덱스 업데이트
             database.child("petActivityRecords").child(petId).child(recordId).setValue(true).await()
 
             Result.success(recordId)
@@ -252,7 +238,6 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 알림 저장
     suspend fun saveNotification(
         title: String,
         message: String,
@@ -277,7 +262,6 @@ class FirebaseService @Inject constructor() {
 
             database.child("notifications").child(notificationId).setValue(notification).await()
 
-            // 사용자별 알림 인덱스 업데이트
             database.child("userNotifications").child(userId).child(notificationId).setValue(true).await()
 
             Result.success(notificationId)
@@ -286,12 +270,10 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 사용자 레벨/경험치 업데이트
     suspend fun updateUserLevel(expGain: Int, coinGain: Int = 0): Result<Unit> {
         return try {
             val userId = getCurrentUserId() ?: return Result.failure(Exception("User not authenticated"))
 
-            // 현재 사용자 정보 가져오기
             val userSnapshot = database.child("users").child(userId).get().await()
             val currentUser = userSnapshot.getValue(FirebaseUser::class.java)
                 ?: return Result.failure(Exception("User data not found"))
@@ -299,7 +281,6 @@ class FirebaseService @Inject constructor() {
             val newTotalExp = currentUser.totalExp + expGain
             val newCoins = currentUser.coins + coinGain
 
-            // 레벨 계산 (예: 100exp마다 레벨업)
             val newLevel = (newTotalExp / 100) + 1
 
             val updates = mapOf(
@@ -316,18 +297,14 @@ class FirebaseService @Inject constructor() {
         }
     }
 
-    // 데이터 삭제 메서드들
     suspend fun deletePet(petId: String): Result<Unit> {
         return try {
             val userId = getCurrentUserId() ?: return Result.failure(Exception("User not authenticated"))
 
-            // 펫 데이터 삭제
             database.child("pets").child(petId).removeValue().await()
 
-            // 사용자 펫 목록에서 제거
             database.child("userPets").child(userId).child(petId).removeValue().await()
 
-            // 관련 건강기록, 활동기록 등도 삭제 (옵션)
             database.child("petHealthRecords").child(petId).removeValue().await()
             database.child("petActivityRecords").child(petId).removeValue().await()
 
@@ -347,3 +324,4 @@ class FirebaseService @Inject constructor() {
         }
     }
 }
+

@@ -12,7 +12,7 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Face // Pets 대신 Face 아이콘 사용
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,7 +30,6 @@ import coil.request.ImageRequest
 import com.example.ppet.ui.theme.NotoSansKR
 import com.example.ppet.ui.theme.OrangePrimary
 import com.example.ppet.ui.character.CharacterSelectionScreen
-import com.example.ppet.ui.settings.NotificationSettingsScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
@@ -50,7 +49,6 @@ fun ProfileScreen(
     var currentUserName by remember { mutableStateOf(userName ?: "사용자") }
     var currentUserEmail by remember { mutableStateOf(userEmail ?: "이메일 정보 없음") }
 
-    // PetViewModel을 사용하여 펫 목록 가져오기
     val petViewModel: com.example.ppet.ui.home.viewmodel.PetViewModel = hiltViewModel()
     val pets by petViewModel.pets.collectAsState()
 
@@ -63,7 +61,7 @@ fun ProfileScreen(
             onSave = { newName, newEmail ->
                 currentUserName = newName
                 currentUserEmail = newEmail
-                // TODO: 실제 구현에서는 서버에 저장
+                // TODO: 서버에 저장하기
             }
         )
     } else if (showNotificationSettings) {

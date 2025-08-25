@@ -66,7 +66,6 @@ fun AppSettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                // 화면 설정
                 AppSettingSection(
                     title = "화면 설정",
                     items = listOf(
@@ -82,7 +81,6 @@ fun AppSettingsScreen(
             }
 
             item {
-                // 언어 및 지역
                 AppSettingSection(
                     title = "언어 및 지역",
                     items = listOf(
@@ -97,7 +95,6 @@ fun AppSettingsScreen(
             }
 
             item {
-                // 데이터 및 저장소
                 AppSettingSection(
                     title = "데이터 및 저장소",
                     items = listOf(
@@ -119,7 +116,6 @@ fun AppSettingsScreen(
             }
 
             item {
-                // 보안 및 개인정보
                 AppSettingSection(
                     title = "보안 및 개인정보",
                     items = listOf(
@@ -140,7 +136,6 @@ fun AppSettingsScreen(
             }
 
             item {
-                // 앱 정보
                 AppSettingSection(
                     title = "앱 정보",
                     items = listOf(
@@ -172,7 +167,7 @@ fun AppSettingsScreen(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            text = "⚙️ 설정 안내",
+                            text = "설정 안내",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium,
                             fontFamily = NotoSansKR,
@@ -182,7 +177,7 @@ fun AppSettingsScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "• 일부 설정은 앱을 재시작한 후 적용됩니다\n• 자동 백업 기능으로 데이터 손실을 방지할 수 있습니다\n• 문의사항이 있으시면 고객센터로 연락해주세요",
+                            text = "- 일부 설정은 앱을 재시작한 후 적용됩니다\n- 자동 백업 기능으로 데이터 손실을 방지할 수 있습니다",
                             fontSize = 12.sp,
                             fontFamily = NotoSansKR,
                             color = Color.Gray,
@@ -194,7 +189,6 @@ fun AppSettingsScreen(
         }
     }
 
-    // 언어 선택 다이얼로그
     if (showLanguageDialog) {
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
