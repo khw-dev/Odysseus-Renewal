@@ -21,19 +21,19 @@ data class WalkSession(
     val id: String = UUID.randomUUID().toString(),
     val startTime: Date = Date(),
     var endTime: Date? = null,
-    var totalDistance: Float = 0f, // 미터 단위
-    var totalDuration: Long = 0L,  // 밀리초 단위
+    var totalDistance: Float = 0f, 
+    var totalDuration: Long = 0L,  
     var isActive: Boolean = true,
     val locations: MutableList<Location> = mutableListOf()
 )
 
 data class WalkStats(
     val isWalking: Boolean = false,
-    val currentSpeed: Float = 0f, // m/s
-    val totalDistance: Float = 0f, // 미터
-    val duration: Long = 0L,      // 밀리초
-    val averageSpeed: Float = 0f,  // m/s
-    val steps: Int = 0            // 추정 걸음수
+    val currentSpeed: Float = 0f, 
+    val totalDistance: Float = 0f, 
+    val duration: Long = 0L,      
+    val averageSpeed: Float = 0f,  
+    val steps: Int = 0            
 )
 
 class WalkTrackingService : Service() {
@@ -55,12 +55,12 @@ class WalkTrackingService : Service() {
     val currentWalkSession: StateFlow<WalkSession?> = _currentSession.asStateFlow()
 
     companion object {
-        private const val LOCATION_INTERVAL = 5000L // 5초마다 위치 업데이트
-        private const val FASTEST_INTERVAL = 2000L  // 최소 2초 간격
-        private const val MIN_DISTANCE_FOR_UPDATE = 2f // 2미터 이상 이동시만 업데이트
-        private const val WALKING_SPEED_THRESHOLD = 0.5f // 0.5m/s 이상을 걷기로 판단
-        private const val MAX_WALKING_SPEED = 4.0f // 4m/s 이상은 달리기로 판단
-        private const val STATIONARY_TIME_THRESHOLD = 300000L // 5분간 정지시 산책 종료
+        private const val LOCATION_INTERVAL = 5000L 
+        private const val FASTEST_INTERVAL = 2000L  
+        private const val MIN_DISTANCE_FOR_UPDATE = 2f 
+        private const val WALKING_SPEED_THRESHOLD = 0.5f 
+        private const val MAX_WALKING_SPEED = 4.0f 
+        private const val STATIONARY_TIME_THRESHOLD = 300000L 
     }
 
     inner class LocalBinder : Binder() {
@@ -97,7 +97,7 @@ class WalkTrackingService : Service() {
         }
 
         if (currentSession?.isActive == true) {
-            return true // 이미 추적 중
+            return true 
         }
 
         currentSession = WalkSession().also {
@@ -124,7 +124,7 @@ class WalkTrackingService : Service() {
             session.endTime = Date()
             session.totalDuration = session.endTime!!.time - session.startTime.time
 
-            // 세션 저장 (Repository에 저장)
+            
             serviceScope.launch {
                 saveWalkSession(session)
             }
@@ -141,7 +141,7 @@ class WalkTrackingService : Service() {
         locationHistory.add(location)
         session.locations.add(location)
 
-        // 최근 위치 기록 유지 (메모리 절약을 위해 최근 100개만)
+        
         if (locationHistory.size > 100) {
             locationHistory.removeAt(0)
         }
@@ -159,24 +159,24 @@ class WalkTrackingService : Service() {
         val distance = currentLocation.distanceTo(previousLocation)
         val timeDiff = currentLocation.time - previousLocation.time
 
-        // 거리 누적
+        
         session.totalDistance += distance
 
-        // 현재 속도 계산 (m/s)
+        
         val currentSpeed = if (timeDiff > 0) {
             distance / (timeDiff / 1000f)
         } else 0f
 
-        // 전체 지속 시간
+        
         val totalDuration = currentLocation.time - session.startTime.time
 
-        // 평균 속도 계산
+        
         val averageSpeed = if (totalDuration > 0) {
             session.totalDistance / (totalDuration / 1000f)
         } else 0f
 
-        // 걸음수 추정 (대략적인 계산)
-        val estimatedSteps = (session.totalDistance / 0.7f).toInt() // 평균 보폭 70cm 가정
+        
+        val estimatedSteps = (session.totalDistance / 0.7f).toInt() 
 
         _walkStats.value = WalkStats(
             isWalking = isCurrentlyWalking(currentSpeed),
@@ -195,7 +195,7 @@ class WalkTrackingService : Service() {
     private fun detectWalkingState() {
         val session = currentSession ?: return
 
-        // 최근 위치 기록을 바탕으로 정지 상태 감지
+        
         if (locationHistory.size >= 3) {
             val recentLocations = locationHistory.takeLast(3)
             val isStationary = recentLocations.zipWithNext().all { (prev, current) ->
@@ -206,7 +206,7 @@ class WalkTrackingService : Service() {
                 val lastMovementTime = session.locations.lastOrNull()?.time ?: session.startTime.time
                 val stationaryTime = Date().time - lastMovementTime
 
-                // 5분 이상 정지시 자동으로 산책 종료
+                
                 if (stationaryTime > STATIONARY_TIME_THRESHOLD) {
                     stopWalkTracking()
                 }
@@ -222,8 +222,8 @@ class WalkTrackingService : Service() {
     }
 
     private suspend fun saveWalkSession(session: WalkSession) {
-        // 실제 구현에서는 Repository를 통해 데이터베이스에 저장
-        // 여기서는 로그만 출력
+        
+        
         println("산책 세션 저장: ${session.totalDistance}m, ${session.totalDuration/60000}분")
     }
 

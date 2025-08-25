@@ -19,7 +19,7 @@ enum class PetRarity {
 }
 
 object PetCharacters {
-    // 기본 캐릭터들 (실제 이미지로 업데이트)
+    
     val availableCharacters = listOf(
         PetCharacter(
             id = "cat_orange",
@@ -43,13 +43,13 @@ object PetCharacters {
             id = "rabbit_white",
             name = "하양이",
             description = "귀엽고 온순한 흰 토끼",
-            imageRes = R.drawable.ic_pet_cat // 토끼 이미지가 없으므로 고양이 이미지 사용
+            imageRes = R.drawable.ic_pet_cat 
         ),
         PetCharacter(
             id = "hamster_brown",
             name = "브라운",
             description = "작고 애교 많은 갈색 햄스터",
-            imageRes = R.drawable.ic_pet_cat // 햄스터 이미지가 없으므로 고양이 이미지 사용
+            imageRes = R.drawable.ic_pet_cat 
         )
     )
 }

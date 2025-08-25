@@ -15,7 +15,7 @@ class PetRepository {
     private val _healthRecords = MutableStateFlow<List<HealthRecord>>(emptyList())
 
     init {
-        // 초기 샘플 데이터
+        
         loadSampleData()
     }
 
@@ -39,7 +39,7 @@ class PetRepository {
         currentPets.removeAll { it.id == petId }
         _pets.value = currentPets
 
-        // 해당 반려동물의 건강 기록도 삭제
+        
         val currentRecords = _healthRecords.value.toMutableList()
         currentRecords.removeAll { it.petId == petId }
         _healthRecords.value = currentRecords

@@ -62,7 +62,7 @@ class PetViewModel @Inject constructor(
     fun addHealthRecord(healthRecord: HealthRecord) {
         viewModelScope.launch {
             petRepository.addHealthRecord(healthRecord)
-            // 현재 선택된 펫의 건강 기록 다시 로드
+            
             _selectedPet.value?.let { pet ->
                 loadHealthRecordsForPet(pet.id)
             }
@@ -72,7 +72,7 @@ class PetViewModel @Inject constructor(
     fun updateHealthRecord(healthRecord: HealthRecord) {
         viewModelScope.launch {
             petRepository.updateHealthRecord(healthRecord)
-            // 현재 선택된 펫의 건강 기록 다시 로드
+            
             _selectedPet.value?.let { pet ->
                 loadHealthRecordsForPet(pet.id)
             }
@@ -82,7 +82,7 @@ class PetViewModel @Inject constructor(
     fun deleteHealthRecord(healthRecordId: String) {
         viewModelScope.launch {
             petRepository.deleteHealthRecord(healthRecordId)
-            // 현재 선택된 펫의 건강 기록 다시 로드
+            
             _selectedPet.value?.let { pet ->
                 loadHealthRecordsForPet(pet.id)
             }

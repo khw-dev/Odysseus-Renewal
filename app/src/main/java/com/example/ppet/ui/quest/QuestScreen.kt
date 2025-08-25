@@ -1,7 +1,6 @@
 package com.example.ppet.ui.quest
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -17,121 +17,216 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.ppet.model.Quest
-import com.example.ppet.model.QuestCategory
-import com.example.ppet.model.QuestStatus
-import com.example.ppet.model.QuestType
-import com.example.ppet.ui.theme.NotoSansKR
-import com.example.ppet.ui.theme.OrangePrimary
+import com.example.ppet.ui.quest.model.*
+import com.example.ppet.ui.theme.*
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.*
 
-data class QuestData(
-    val id: String,
-    val title: String,
-    val description: String,
-    val type: String,
-    val points: Int,
-    val currentProgress: Int,
-    val maxProgress: Int,
-    val isCompleted: Boolean = false,
-    val isRewarded: Boolean = false,
-    val iconType: String
-)
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuestScreen(
     modifier: Modifier = Modifier,
     viewModel: QuestViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
 
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFFFAFAFA))
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
-    ) {
-        item {
-            ModernWalkTrackingCard(
-                walkStats = uiState.walkStats,
-                isWalkingActive = uiState.isWalkingActive,
-                onStartWalk = { viewModel.startWalkTracking() },
-                onStopWalk = { viewModel.stopWalkTracking() }
-            )
-        }
-
-        item {
-            ProgressStatsCard(
-                todayWalkingTime = uiState.todayWalkingTime,
-                weeklyWalkingTime = uiState.weeklyWalkingTime,
-                completionRate = uiState.completionRate
-            )
-        }
-
-        item {
-            ModernCategoryFilter(
-                selectedCategory = uiState.selectedCategory,
-                onCategorySelected = { viewModel.filterQuestsByCategory(it) }
-            )
-        }
-
-        item {
-            Text(
-                text = "진행 중인 퀘스트",
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = NotoSansKR,
-                color = Color(0xFF1A1A1A)
-            )
-        }
-
-        items(viewModel.getFilteredQuests()) { quest ->
-            ModernQuestCard(
-                quest = quest,
-                onQuestClick = { /* 퀘스트 상세 화면으로 이동 */ },
-                onCompleteClick = { viewModel.markQuestAsCompleted(quest.id) },
-                onProgressUpdate = { progress ->
-                    viewModel.updateQuestProgress(quest.id, progress)
-                }
-            )
-        }
-
-        if (uiState.completedQuests.isNotEmpty()) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = BackgroundLight
+    ) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "완료된 퀘스트",
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = NotoSansKR,
-                    color = Color(0xFF1A1A1A)
+                Spacer(modifier = Modifier.height(8.dp))
+                UserPointsCard(
+                    userPoints = uiState.userPoints
                 )
             }
 
-            items(uiState.completedQuests.take(5)) { quest ->
-                ModernCompletedQuestCard(quest = quest)
+            
+            item {
+                WalkTrackingCard(
+                    walkStats = uiState.walkStats,
+                    isWalkingActive = uiState.isWalkingActive,
+                    onStartWalk = { viewModel.startWalkTracking() },
+                    onStopWalk = { viewModel.stopWalkTracking() }
+                )
+            }
+
+            
+            item {
+                CategoryFilterRow(
+                    selectedCategory = uiState.selectedCategory,
+                    onCategorySelected = { viewModel.filterQuestsByCategory(it) }
+                )
+            }
+
+            
+            item {
+                SectionTitle("진행 중인 퀘스트")
+            }
+
+            
+            items(uiState.activeQuests) { quest ->
+                QuestCard(
+                    quest = quest,
+                    onQuestClick = { /* 퀘스트 상세 화면으로 이동 */ },
+                    onProgressUpdate = { progress ->
+                        viewModel.updateQuestProgress(quest.id, progress)
+                        if (progress >= quest.maxProgress) {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar("퀘스트를 완료했습니다! +${quest.points} 포인트")
+                            }
+                        }
+                    },
+                    onRewardClaim = {
+                        viewModel.claimQuestReward(quest.id)
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("보상을 획득했습니다!")
+                        }
+                    }
+                )
+            }
+
+            
+            if (uiState.completedQuests.isNotEmpty()) {
+                item {
+                    SectionTitle("최근 완료된 퀘스트")
+                }
+
+                items(uiState.completedQuests.take(5)) { quest ->
+                    CompletedQuestCard(quest = quest)
+                }
+            }
+
+            
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
 }
 
 @Composable
-fun ModernWalkTrackingCard(
-    walkStats: com.example.ppet.service.WalkStats,
+fun UserPointsCard(
+    userPoints: UserPoints
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "내 포인트",
+                        fontFamily = NotoSansKR,
+                        fontSize = 16.sp,
+                        color = TextSecondary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "${userPoints.totalPoints}P",
+                        fontFamily = NotoSansKR,
+                        fontSize = 24.sp,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "오늘 획득",
+                        fontFamily = NotoSansKR,
+                        fontSize = 12.sp,
+                        color = TextSecondary
+                    )
+                    Text(
+                        text = "+${userPoints.todayEarned}P",
+                        fontFamily = NotoSansKR,
+                        fontSize = 16.sp,
+                        color = OrangePrimary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Lv.${userPoints.level}",
+                    fontFamily = NotoSansKR,
+                    fontSize = 14.sp,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                LinearProgressIndicator(
+                    progress = { userPoints.currentLevelProgress },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp)),
+                    color = OrangePrimary,
+                    trackColor = GrayLight
+                )
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Text(
+                    text = "${userPoints.nextLevelPoints}P",
+                    fontFamily = NotoSansKR,
+                    fontSize = 12.sp,
+                    color = TextSecondary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun WalkTrackingCard(
+    walkStats: WalkStats,
     isWalkingActive: Boolean,
     onStartWalk: () -> Unit,
     onStopWalk: () -> Unit
 ) {
-    Surface(
+    Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = if (isWalkingActive) Color(0xFF1A73E8) else Color.White,
-        border = BorderStroke(1.dp, Color(0xFFE8E8E8))
+        colors = CardDefaults.cardColors(
+            containerColor = if (isWalkingActive) OrangePrimary else Color.White
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.padding(20.dp)
@@ -144,55 +239,54 @@ fun ModernWalkTrackingCard(
                 Column {
                     Text(
                         text = "산책 추적",
+                        fontFamily = NotoSansKR,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.SemiBold,
-                        fontFamily = NotoSansKR,
-                        color = if (isWalkingActive) Color.White else Color(0xFF1A1A1A)
+                        color = if (isWalkingActive) Color.White else TextPrimary
                     )
                     Text(
-                        text = if (isWalkingActive) "진행 중" else "시작하기",
-                        fontSize = 14.sp,
+                        text = if (isWalkingActive) "진행 중" else "산책을 시작해보세요",
                         fontFamily = NotoSansKR,
-                        color = if (isWalkingActive) Color.White.copy(alpha = 0.8f) else Color(0xFF666666)
+                        fontSize = 14.sp,
+                        color = if (isWalkingActive) Color.White.copy(alpha = 0.8f) else TextSecondary
                     )
                 }
 
-                Surface(
-                    modifier = Modifier.clickable {
-                        if (isWalkingActive) onStopWalk() else onStartWalk()
-                    },
-                    shape = CircleShape,
-                    color = if (isWalkingActive) Color.White else Color(0xFF1A73E8)
+                FloatingActionButton(
+                    onClick = { if (isWalkingActive) onStopWalk() else onStartWalk() },
+                    modifier = Modifier.size(56.dp),
+                    containerColor = if (isWalkingActive) Color.White else OrangePrimary,
+                    elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp)
                 ) {
                     Icon(
-                        imageVector = if (isWalkingActive) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        imageVector = if (isWalkingActive) Icons.Default.Stop else Icons.AutoMirrored.Filled.DirectionsWalk,
                         contentDescription = if (isWalkingActive) "중지" else "시작",
-                        tint = if (isWalkingActive) Color(0xFF1A73E8) else Color.White,
-                        modifier = Modifier.padding(12.dp)
+                        tint = if (isWalkingActive) OrangePrimary else Color.White,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
 
-            if (isWalkingActive) {
+            if (isWalkingActive && (walkStats.totalDistance > 0 || walkStats.duration > 0)) {
                 Spacer(modifier = Modifier.height(20.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    ModernWalkStat(
+                    WalkStatItem(
                         label = "거리",
-                        value = "${(walkStats.totalDistance / 1000f).format(2)} km",
+                        value = "%.2f km".format(walkStats.totalDistance / 1000f),
                         isActive = true
                     )
-                    ModernWalkStat(
+                    WalkStatItem(
                         label = "시간",
-                        value = "${(walkStats.duration / 60000)} 분",
+                        value = "${walkStats.duration / 60000}분",
                         isActive = true
                     )
-                    ModernWalkStat(
-                        label = "속도",
-                        value = "${(walkStats.currentSpeed * 3.6f).format(1)} km/h",
+                    WalkStatItem(
+                        label = "걸음",
+                        value = "${walkStats.stepCount}",
                         isActive = true
                     )
                 }
@@ -202,141 +296,47 @@ fun ModernWalkTrackingCard(
 }
 
 @Composable
-fun ModernWalkStat(label: String, value: String, isActive: Boolean) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = value,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = if (isActive) Color.White else Color(0xFF1A73E8)
-        )
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            color = if (isActive) Color.White.copy(alpha = 0.8f) else Color(0xFF666666)
-        )
-    }
-}
-
-@Composable
-fun ProgressStatsCard(
-    todayWalkingTime: Int,
-    weeklyWalkingTime: Int,
-    completionRate: Float
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, Color(0xFFE8E8E8))
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            Text(
-                text = "이번 주 진행 상황",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                fontFamily = NotoSansKR,
-                color = Color(0xFF1A1A1A),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                ModernProgressItem(
-                    label = "오늘 산책",
-                    value = "${todayWalkingTime}분",
-                    target = "60분",
-                    progress = (todayWalkingTime / 60f).coerceAtMost(1f),
-                    color = Color(0xFF1A73E8)
-                )
-                ModernProgressItem(
-                    label = "이번 주",
-                    value = "${weeklyWalkingTime}분",
-                    target = "1200분",
-                    progress = (weeklyWalkingTime / 1200f).coerceAtMost(1f),
-                    color = Color(0xFF34A853)
-                )
-                ModernProgressItem(
-                    label = "완료율",
-                    value = "${(completionRate * 100).toInt()}%",
-                    target = "100%",
-                    progress = completionRate,
-                    color = Color(0xFFEA4335)
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ModernProgressItem(
+fun WalkStatItem(
     label: String,
     value: String,
-    target: String,
-    progress: Float,
-    color: Color
+    isActive: Boolean
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(
-            modifier = Modifier.size(60.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                progress = progress,
-                modifier = Modifier.size(50.dp),
-                color = color,
-                strokeWidth = 4.dp,
-                trackColor = color.copy(alpha = 0.1f)
-            )
-            Text(
-                text = value,
-                fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
-                color = color
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            text = label,
-            fontSize = 12.sp,
-            color = Color(0xFF666666),
-            fontWeight = FontWeight.Medium
+            text = value,
+            fontFamily = NotoSansKR,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isActive) Color.White else TextPrimary
         )
         Text(
-            text = "목표 $target",
-            fontSize = 10.sp,
-            color = Color(0xFF999999)
+            text = label,
+            fontFamily = NotoSansKR,
+            fontSize = 12.sp,
+            color = if (isActive) Color.White.copy(alpha = 0.8f) else TextSecondary
         )
     }
 }
 
 @Composable
-fun ModernCategoryFilter(
-    selectedCategory: QuestCategory?,
-    onCategorySelected: (QuestCategory?) -> Unit
+fun CategoryFilterRow(
+    selectedCategory: QuestCategory,
+    onCategorySelected: (QuestCategory) -> Unit
 ) {
-    LazyRow(
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            ModernCategoryChip(
-                label = "전체",
-                isSelected = selectedCategory == null,
-                onClick = { onCategorySelected(null) }
-            )
-        }
+    val categories = listOf(
+        QuestCategory.ALL to "전체",
+        QuestCategory.CARE to "돌봄",
+        QuestCategory.EXERCISE to "운동",
+        QuestCategory.HEALTH to "건강",
+        QuestCategory.SOCIAL to "소셜"
+    )
 
-        items(QuestCategory.values()) { category ->
-            ModernCategoryChip(
-                label = getCategoryDisplayName(category),
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        items(categories) { (category, label) ->
+            CategoryChip(
+                label = label,
                 isSelected = selectedCategory == category,
                 onClick = { onCategorySelected(category) }
             )
@@ -345,178 +345,159 @@ fun ModernCategoryFilter(
 }
 
 @Composable
-fun ModernCategoryChip(
+fun CategoryChip(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.clickable { onClick() },
-        shape = RoundedCornerShape(24.dp),
-        color = if (isSelected) Color(0xFF1A73E8) else Color.Transparent,
-        border = BorderStroke(
-            1.dp,
-            if (isSelected) Color(0xFF1A73E8) else Color(0xFFE8E8E8)
-        )
+        shape = RoundedCornerShape(20.dp),
+        color = if (isSelected) OrangePrimary else Color.White,
+        border = if (!isSelected) BorderStroke(1.dp, GrayLight) else null
     ) {
         Text(
             text = label,
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
-            color = if (isSelected) Color.White else Color(0xFF666666),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            fontFamily = NotoSansKR,
             fontSize = 14.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            color = if (isSelected) Color.White else TextPrimary
         )
     }
 }
 
 @Composable
-fun ModernQuestCard(
+fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        fontFamily = NotoSansKR,
+        fontSize = 18.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = TextPrimary,
+        modifier = Modifier.padding(vertical = 8.dp)
+    )
+}
+
+@Composable
+fun QuestCard(
     quest: Quest,
     onQuestClick: () -> Unit,
-    onCompleteClick: () -> Unit,
-    onProgressUpdate: (Int) -> Unit
+    onProgressUpdate: (Int) -> Unit,
+    onRewardClaim: () -> Unit
 ) {
-    Surface(
+    Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onQuestClick() },
-        shape = RoundedCornerShape(16.dp),
-        color = Color.White,
-        border = BorderStroke(1.dp, Color(0xFFE8E8E8))
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = getCategoryIcon(quest.category),
-                            contentDescription = null,
-                            tint = getCategoryColor(quest.category),
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    QuestIcon(iconType = quest.iconType)
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column {
                         Text(
                             text = quest.title,
+                            fontFamily = NotoSansKR,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold,
+                            color = TextPrimary
+                        )
+                        Text(
+                            text = quest.description,
                             fontFamily = NotoSansKR,
-                            color = Color(0xFF1A1A1A)
+                            fontSize = 14.sp,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(top = 2.dp)
                         )
                     }
-                    Text(
-                        text = quest.description,
-                        fontSize = 14.sp,
-                        color = Color(0xFF666666),
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
                 }
 
-                ModernQuestTypeChip(quest.type)
+                QuestTypeChip(type = quest.type)
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            val progress = quest.currentProgress.toFloat() / quest.targetValue
+            QuestProgressBar(
+                currentProgress = quest.currentProgress,
+                maxProgress = quest.maxProgress,
+                isCompleted = quest.isCompleted
+            )
 
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "${quest.currentProgress}/${quest.targetValue} ${quest.unit}",
-                        fontSize = 12.sp,
-                        color = Color(0xFF666666),
-                        fontWeight = FontWeight.Medium
-                    )
-                    Text(
-                        text = "${(progress * 100).toInt()}%",
-                        fontSize = 12.sp,
-                        color = getCategoryColor(quest.category),
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(6.dp)
-                        .background(
-                            Color(0xFFF0F0F0),
-                            RoundedCornerShape(3.dp)
-                        )
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(progress)
-                            .background(
-                                getCategoryColor(quest.category),
-                                RoundedCornerShape(3.dp)
-                            )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row {
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFF8F9FA)
-                    ) {
-                        Text(
-                            text = "${quest.rewardExp} EXP",
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = Color(0xFF666666)
-                        )
-                    }
-                    if (quest.rewardCoins > 0) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = Color(0xFFFFF3E0)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = "포인트",
+                        tint = OrangePrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "${quest.points}P",
+                        fontFamily = NotoSansKR,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = OrangePrimary
+                    )
+                }
+
+                when {
+                    quest.isCompleted && !quest.isRewarded -> {
+                        Button(
+                            onClick = onRewardClaim,
+                            colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.height(32.dp)
                         ) {
                             Text(
-                                text = "${quest.rewardCoins} 코인",
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                text = "보상 받기",
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color(0xFFFF8F00)
+                                fontFamily = NotoSansKR
                             )
                         }
                     }
-                }
-
-                if (quest.status != QuestStatus.COMPLETED && !quest.isAutoDetectable) {
-                    Surface(
-                        modifier = Modifier.clickable { onCompleteClick() },
-                        shape = RoundedCornerShape(20.dp),
-                        color = getCategoryColor(quest.category)
-                    ) {
+                    quest.isRewarded -> {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = SuccessGreen.copy(alpha = 0.1f)
+                        ) {
+                            Text(
+                                text = "완료",
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                                fontSize = 12.sp,
+                                fontFamily = NotoSansKR,
+                                color = SuccessGreen,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    else -> {
                         Text(
-                            text = "완료",
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            fontSize = 12.sp,
-                            color = Color.White,
-                            fontWeight = FontWeight.Medium
+                            text = "${quest.currentProgress}/${quest.maxProgress}",
+                            fontFamily = NotoSansKR,
+                            fontSize = 14.sp,
+                            color = TextSecondary
                         )
                     }
                 }
@@ -526,103 +507,115 @@ fun ModernQuestCard(
 }
 
 @Composable
-fun ModernCompletedQuestCard(quest: Quest) {
+fun QuestIcon(iconType: QuestIconType) {
+    val icon = when (iconType) {
+        QuestIconType.WALK -> Icons.AutoMirrored.Filled.DirectionsWalk
+        QuestIconType.FEED -> Icons.Default.RestaurantMenu
+        QuestIconType.HEALTH -> Icons.Default.Favorite
+        QuestIconType.PLAY -> Icons.Default.SportsEsports
+        QuestIconType.HOSPITAL -> Icons.Default.LocalHospital
+        QuestIconType.PHOTO -> Icons.Default.PhotoCamera
+        QuestIconType.SPECIAL -> Icons.Default.EmojiEvents
+    }
+
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = Color(0xFFF8F9FA),
-        border = BorderStroke(1.dp, Color(0xFFE8E8E8))
+        shape = CircleShape,
+        color = OrangePrimary.copy(alpha = 0.1f),
+        modifier = Modifier.size(40.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(20.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = Color(0xFF34A853)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "완료",
-                    tint = Color.White,
-                    modifier = Modifier.padding(8.dp).size(16.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = quest.title,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color(0xFF666666)
-                )
-                Text(
-                    text = "${quest.rewardExp} EXP, ${quest.rewardCoins} 코인 획득",
-                    fontSize = 12.sp,
-                    color = Color(0xFF999999)
-                )
-            }
-        }
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = OrangePrimary,
+            modifier = Modifier.padding(8.dp)
+        )
     }
 }
 
 @Composable
-fun ModernQuestTypeChip(type: QuestType) {
-    val (color, text) = when (type) {
-        QuestType.DAILY -> Color(0xFF34A853) to "일일"
-        QuestType.WEEKLY -> Color(0xFF1A73E8) to "주간"
-        QuestType.MONTHLY -> Color(0xFF9C27B0) to "월간"
-        QuestType.SPECIAL -> Color(0xFFEA4335) to "특별"
+fun QuestTypeChip(type: QuestType) {
+    val (label, color) = when (type) {
+        QuestType.DAILY -> "일일" to OrangePrimary
+        QuestType.WEEKLY -> "주간" to InfoBlue
+        QuestType.SPECIAL -> "스페셜" to Color(0xFF9C27B0)
     }
 
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = color.copy(alpha = 0.1f),
-        border = BorderStroke(1.dp, color.copy(alpha = 0.3f))
+        color = color.copy(alpha = 0.1f)
     ) {
         Text(
-            text = text,
+            text = label,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-            fontSize = 11.sp,
-            fontWeight = FontWeight.Medium,
+            fontFamily = NotoSansKR,
+            fontSize = 10.sp,
+            fontWeight = FontWeight.SemiBold,
             color = color
         )
     }
 }
 
-private fun getCategoryDisplayName(category: QuestCategory): String {
-    return when (category) {
-        QuestCategory.EXERCISE -> "운동"
-        QuestCategory.CARE -> "돌봄"
-        QuestCategory.FEEDING -> "급식"
-        QuestCategory.HEALTH -> "건강"
-        QuestCategory.SOCIAL -> "사회화"
-        QuestCategory.LEARNING -> "학습"
+@Composable
+fun QuestProgressBar(
+    currentProgress: Int,
+    maxProgress: Int,
+    isCompleted: Boolean
+) {
+    val progress = if (maxProgress > 0) currentProgress.toFloat() / maxProgress else 0f
+
+    Column {
+        LinearProgressIndicator(
+            progress = { progress.coerceIn(0f, 1f) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp)),
+            color = if (isCompleted) SuccessGreen else OrangePrimary,
+            trackColor = GrayLight
+        )
     }
 }
 
-private fun getCategoryIcon(category: QuestCategory): ImageVector {
-    return when (category) {
-        QuestCategory.EXERCISE -> Icons.Default.DirectionsRun
-        QuestCategory.CARE -> Icons.Default.Favorite
-        QuestCategory.FEEDING -> Icons.Default.Restaurant
-        QuestCategory.HEALTH -> Icons.Default.HealthAndSafety
-        QuestCategory.SOCIAL -> Icons.Default.People
-        QuestCategory.LEARNING -> Icons.Default.School
+@Composable
+fun CompletedQuestCard(quest: Quest) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = BackgroundGray.copy(alpha = 0.5f)),
+    ) {
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            QuestIcon(iconType = quest.iconType)
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = quest.title,
+                    fontFamily = NotoSansKR,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = TextSecondary
+                )
+                quest.completedAt?.let { date ->
+                    Text(
+                        text = SimpleDateFormat("MM월 dd일 완료", Locale.KOREAN).format(date),
+                        fontFamily = NotoSansKR,
+                        fontSize = 12.sp,
+                        color = TextTertiary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
+
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = "완료됨",
+                tint = SuccessGreen,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
-
-private fun getCategoryColor(category: QuestCategory): Color {
-    return when (category) {
-        QuestCategory.EXERCISE -> Color(0xFF1A73E8)
-        QuestCategory.CARE -> Color(0xFFEA4335)
-        QuestCategory.FEEDING -> Color(0xFF34A853)
-        QuestCategory.HEALTH -> Color(0xFF9C27B0)
-        QuestCategory.SOCIAL -> Color(0xFFFF8F00)
-        QuestCategory.LEARNING -> Color(0xFF00BCD4)
-    }
-}
-
-private fun Float.format(digits: Int) = "%.${digits}f".format(this)

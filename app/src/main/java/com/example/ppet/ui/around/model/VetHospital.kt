@@ -5,7 +5,7 @@ data class VetHospital(
     val name: String,
     val address: String,
     val phoneNumber: String,
-    val distance: Double, // km 단위
+    val distance: Double, 
     val rating: Float,
     val isOpen: Boolean,
     val openHours: String,

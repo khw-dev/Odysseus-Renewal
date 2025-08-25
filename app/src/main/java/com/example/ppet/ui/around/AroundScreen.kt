@@ -254,18 +254,18 @@ private fun HospitalCard(
                     modifier = Modifier.weight(1f)
                 )
 
-//                Surface(
-//                    shape = RoundedCornerShape(8.dp),
-//                    color = if (hospital.isOpen) Color(0xFF4CAF50) else Color(0xFFFF5722)
-//                ) {
-//                    Text(
-//                        text = if (hospital.isOpen) "영업중" else "영업종료",
-//                        color = Color.White,
-//                        fontSize = 10.sp,
-//                        fontFamily = NotoSansKR,
-//                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
-//                    )
-//                }
+
+
+
+
+
+
+
+
+
+
+
+
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -343,35 +343,35 @@ private fun HospitalCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-//            Surface(
-//                onClick = {
-//                    PhoneUtils.makePhoneCall(context, hospital.phoneNumber)
-//                },
-//                modifier = Modifier.fillMaxWidth(),
-//                color = OrangePrimary,
-//                shape = RoundedCornerShape(12.dp)
-//            ) {
-//                Row(
-//                    modifier = Modifier.padding(vertical = 12.dp),
-//                    horizontalArrangement = Arrangement.Center,
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Phone,
-//                        contentDescription = "전화",
-//                        modifier = Modifier.size(16.dp),
-//                        tint = Color.White
-//                    )
-//                    Spacer(modifier = Modifier.width(6.dp))
-//                    Text(
-//                        text = "전화하기",
-//                        fontFamily = NotoSansKR,
-//                        fontWeight = FontWeight.Medium,
-//                        fontSize = 14.sp,
-//                        color = Color.White
-//                    )
-//                }
-//            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         }
     }
 }
@@ -390,7 +390,7 @@ private fun loadNearbyHospitals(
             if (location != null) {
                 Log.d("AroundScreen", "위치 획득 성공: ${location.latitude}, ${location.longitude}")
 
-                // TODO: 실제 위치 기반 검색
+                
                 val searchService = VetHospitalSearchService(locationManager.context)
                 val hospitals = searchService.searchNearbyVetHospitals(location)
 

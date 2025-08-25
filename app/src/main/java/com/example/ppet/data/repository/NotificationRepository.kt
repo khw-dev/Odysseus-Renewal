@@ -21,7 +21,7 @@ class NotificationRepository @Inject constructor() {
 
     suspend fun addNotification(notification: Notification) {
         val currentNotifications = _notifications.value.toMutableList()
-        currentNotifications.add(0, notification) // 최신 알림을 앞에 추가
+        currentNotifications.add(0, notification) 
         _notifications.value = currentNotifications
     }
 
@@ -49,7 +49,7 @@ class NotificationRepository @Inject constructor() {
         return _notifications.value.count { !it.isRead }
     }
 
-    // 반려동물 관련 자동 알림 생성
+    
     suspend fun createVaccinationReminder(petId: String, petName: String, vaccinationType: String, dueDate: Date) {
         val notification = Notification(
             id = UUID.randomUUID().toString(),

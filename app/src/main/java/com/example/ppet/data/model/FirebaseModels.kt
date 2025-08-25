@@ -3,14 +3,14 @@ package com.example.ppet.data.model
 import com.google.firebase.database.PropertyName
 import java.util.*
 
-// 사용자 정보 모델 추가
+
 data class UserInfo(
     val displayName: String? = null,
     val email: String? = null,
     val profilePictureUrl: String? = null
 )
 
-// Firebase용 사용자 데이터 모델
+
 data class FirebaseUser(
     @PropertyName("id") val id: String = "",
     @PropertyName("displayName") val displayName: String? = null,
@@ -24,7 +24,7 @@ data class FirebaseUser(
     @PropertyName("selectedPetCharacterId") val selectedPetCharacterId: String? = null
 )
 
-// Firebase용 펫 데이터 모델
+
 data class FirebasePet(
     @PropertyName("id") val id: String = "",
     @PropertyName("name") val name: String = "",
@@ -44,7 +44,7 @@ data class FirebasePet(
     @PropertyName("ownerId") val ownerId: String = ""
 )
 
-// Firebase용 건강 기록 모델
+
 data class FirebaseHealthRecord(
     @PropertyName("id") val id: String = "",
     @PropertyName("petId") val petId: String = "",
@@ -60,7 +60,7 @@ data class FirebaseHealthRecord(
     @PropertyName("createdAt") val createdAt: Long = System.currentTimeMillis()
 )
 
-// Firebase용 퀘스트 모델
+
 data class FirebaseQuest(
     @PropertyName("id") val id: String = "",
     @PropertyName("title") val title: String = "",
@@ -80,7 +80,7 @@ data class FirebaseQuest(
     @PropertyName("userId") val userId: String = ""
 )
 
-// Firebase용 알림 모델
+
 data class FirebaseNotification(
     @PropertyName("id") val id: String = "",
     @PropertyName("title") val title: String = "",
@@ -93,14 +93,14 @@ data class FirebaseNotification(
     @PropertyName("actionData") val actionData: Map<String, String>? = null
 )
 
-// Firebase용 활동 기록 모델 (산책, 급식 등)
+
 data class FirebaseActivityRecord(
     @PropertyName("id") val id: String = "",
     @PropertyName("petId") val petId: String = "",
     @PropertyName("userId") val userId: String = "",
-    @PropertyName("type") val type: String = "", // WALK, FEEDING, PLAY, etc.
-    @PropertyName("duration") val duration: Int? = null, // 분 단위
-    @PropertyName("distance") val distance: Double? = null, // km 단위
+    @PropertyName("type") val type: String = "", 
+    @PropertyName("duration") val duration: Int? = null, 
+    @PropertyName("distance") val distance: Double? = null, 
     @PropertyName("notes") val notes: String? = null,
     @PropertyName("timestamp") val timestamp: Long = System.currentTimeMillis(),
     @PropertyName("location") val location: String? = null,

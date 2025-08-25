@@ -16,7 +16,7 @@ import java.net.URLEncoder
 
 class VetHospitalSearchService(private val context: Context) {
 
-    // 카카오 REST API 키 (https://developers.kakao.com/console/app 에서 발급)
+    
     private val kakaoApiKey = "a1e01dc0cb86278d9dee1317b8526447"
 
     companion object {
@@ -28,8 +28,8 @@ class VetHospitalSearchService(private val context: Context) {
             Log.d(TAG, "=== 동물병원 검색 시작 ===")
             Log.d(TAG, "위치: 위도=${location.latitude}, 경도=${location.longitude}")
 
-            // 가상의 더미 데이터 생성
-            delay(1500) // 실제 API 호출 시뮬레이션
+            
+            delay(1500) 
 
             val hospitals = generateDummyHospitals(location)
             Log.d(TAG, "더미 데이터 생성 완료 - 병원 수: ${hospitals.size}")

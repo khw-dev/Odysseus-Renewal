@@ -65,7 +65,7 @@ fun MainTabScreen(
     if (showAddPetScreen) {
         com.example.ppet.ui.pet.AddPetScreen(
             onBack = { showAddPetScreen = false },
-            onSavePet = { pet ->
+            onSave = { pet ->
                 petViewModel.addPet(pet)
                 showAddPetScreen = false
             }
@@ -77,7 +77,7 @@ fun MainTabScreen(
                 showAddHealthRecordScreen = false
                 selectedPetForHealthRecord = null
             },
-            onSaveRecord = { healthRecord ->
+            onSave = { healthRecord ->
                 petViewModel.addHealthRecord(healthRecord)
                 showAddHealthRecordScreen = false
                 selectedPetForHealthRecord = null
@@ -103,7 +103,7 @@ fun MainTabScreen(
         )
     } else if (showNotificationScreen) {
         com.example.ppet.ui.notification.NotificationScreen(
-            notifications = emptyList(), // 실제 구현에서는 NotificationViewModel에서 가져옴
+            notifications = emptyList(),
             onBack = { showNotificationScreen = false },
             onNotificationClick = { },
             onMarkAsRead = { },

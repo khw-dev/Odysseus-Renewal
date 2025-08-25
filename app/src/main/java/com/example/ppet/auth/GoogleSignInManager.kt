@@ -47,7 +47,7 @@ class GoogleSignInManager @Inject constructor(
 
     init {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(FirebaseConfig.WEB_CLIENT_ID) // Firebase Console에서 가져온 웹 클라이언트 ID
+            .requestIdToken(FirebaseConfig.WEB_CLIENT_ID) 
             .requestEmail()
             .requestProfile()
             .build()
@@ -63,11 +63,11 @@ class GoogleSignInManager @Inject constructor(
         try {
             val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
 
-            // 디버깅을 위한 로그
+            
             println("Google Sign-In Success: ${account.email}")
             println("ID Token: ${account.idToken}")
 
-            // Firebase Authentication with Google
+            
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
             val authResult = firebaseAuth.signInWithCredential(credential).await()
 
@@ -80,7 +80,7 @@ class GoogleSignInManager @Inject constructor(
                     profilePictureUrl = firebaseUser.photoUrl?.toString()
                 )
 
-                // Firebase Database에 사용자 정보 저장
+                
                 saveUserInfoToFirebase(userInfo)
 
                 _signInState.value = GoogleSignInResult(isSuccess = true, userInfo = userInfo)
@@ -91,7 +91,7 @@ class GoogleSignInManager @Inject constructor(
                 )
             }
         } catch (e: ApiException) {
-            // 더 자세한 오류 정보 제공
+            
             val errorMessage = when (e.statusCode) {
                 10 -> "개발자 오류: Google Sign-In 설정을 확인해주세요. SHA-1 인증서나 클라이언트 ID를 확인하세요."
                 7 -> "네트워크 오류: 인터넷 연결을 확인해주세요."
@@ -126,7 +126,7 @@ class GoogleSignInManager @Inject constructor(
                 )
                 repository.saveUserInfo(firebaseUserInfo)
             } catch (e: Exception) {
-                // 로그 또는 에러 처리
+                
                 println("Failed to save user info to Firebase: ${e.message}")
             }
         }
@@ -149,7 +149,7 @@ class GoogleSignInManager @Inject constructor(
             try {
                 firebaseAuth.signOut()
                 googleSignInClient.signOut().await()
-                googleSignInClient.revokeAccess().await() // 완전한 세션 초기화
+                googleSignInClient.revokeAccess().await() 
                 _signInState.value = null
             } catch (e: Exception) {
                 println("Clear session failed: ${e.message}")
@@ -158,7 +158,7 @@ class GoogleSignInManager @Inject constructor(
     }
 
     fun checkLastSignedIn() {
-        // Firebase 사용자 확인
+        
         val firebaseUser = firebaseAuth.currentUser
         if (firebaseUser != null) {
             val userInfo = UserInfo(

@@ -26,7 +26,7 @@ class UserRepository @Inject constructor(
         private const val KEY_NOTIFICATION_ENABLED = "notification_enabled"
     }
 
-    // 캐릭터 관련 메서드
+    
     suspend fun saveSelectedCharacter(character: PetCharacter) {
         val characterJson = gson.toJson(character)
         sharedPreferences.edit()
@@ -47,7 +47,7 @@ class UserRepository @Inject constructor(
         }
     }
 
-    // 사용자 정보 관련 메서드
+    
     fun saveUserName(name: String) {
         sharedPreferences.edit()
             .putString(KEY_USER_NAME, name)

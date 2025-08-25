@@ -78,7 +78,7 @@ fun HealthRecordScreen(
         }
     ) { paddingValues ->
         if (healthRecords.isEmpty()) {
-            // 빈 상태
+            
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -134,7 +134,7 @@ fun HealthRecordScreen(
                 }
             }
         } else {
-            // 기록 목록
+            
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -179,7 +179,7 @@ private fun HealthRecordCard(
                 verticalAlignment = Alignment.Top
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    // 기록 타입 배지
+                    
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = getHealthRecordTypeColor(record.type).copy(alpha = 0.1f)
@@ -196,7 +196,7 @@ private fun HealthRecordCard(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // 제목
+                    
                     Text(
                         text = record.title,
                         fontFamily = NotoSansKR,
@@ -205,7 +205,7 @@ private fun HealthRecordCard(
                         color = Color.Black
                     )
 
-                    // 설명
+                    
                     if (!record.description.isNullOrBlank()) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -217,7 +217,7 @@ private fun HealthRecordCard(
                         )
                     }
 
-                    // 병원명
+                    
                     if (!record.veterinaryClinic.isNullOrBlank()) {
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -229,7 +229,7 @@ private fun HealthRecordCard(
                     }
                 }
 
-                // 날짜
+                
                 Text(
                     text = dateFormatter.format(record.date),
                     fontFamily = NotoSansKR,
@@ -238,7 +238,7 @@ private fun HealthRecordCard(
                 )
             }
 
-            // 다음 예약이 있는 경우
+            
             record.nextAppointment?.let { nextDate ->
                 Spacer(modifier = Modifier.height(8.dp))
                 Surface(

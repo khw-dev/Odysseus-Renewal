@@ -48,7 +48,7 @@ class QuestRepository @Inject constructor(
     }
 
     private fun loadQuests() {
-        // 활성 퀘스트 로드
+        
         val activeQuestsJson = sharedPreferences.getString(KEY_ACTIVE_QUESTS, null)
         if (activeQuestsJson != null) {
             try {
@@ -60,7 +60,7 @@ class QuestRepository @Inject constructor(
             }
         }
 
-        // 완료된 퀘스트 로드
+        
         val completedQuestsJson = sharedPreferences.getString(KEY_COMPLETED_QUESTS, null)
         if (completedQuestsJson != null) {
             try {
@@ -116,17 +116,17 @@ class QuestRepository @Inject constructor(
             set(Calendar.MILLISECOND, 0)
         }.timeInMillis
 
-        // 마지막 갱신이 오늘이 아니면 새로운 퀘스트 생성
+        
         if (lastRefresh < today) {
             generateDailyQuests()
 
-            // 주간 퀘스트 체크 (월요일에 갱신)
+            
             val calendar = Calendar.getInstance()
             if (calendar.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
                 generateWeeklyQuests()
             }
 
-            // 월간 퀘스트 체크 (매월 1일에 갱신)
+            
             if (calendar.get(Calendar.DAY_OF_MONTH) == 1) {
                 generateMonthlyQuests()
             }
@@ -140,10 +140,10 @@ class QuestRepository @Inject constructor(
     private fun generateDailyQuests() {
         val currentActive = _activeQuests.value.toMutableList()
 
-        // 기존 일일 퀘스트 제거
+        
         currentActive.removeAll { it.type == com.example.ppet.model.QuestType.DAILY }
 
-        // 새로운 일일 퀘스트 추가
+        
         val newDailyQuests = QuestTemplates.getDailyQuests()
         currentActive.addAll(newDailyQuests)
 
@@ -188,7 +188,7 @@ class QuestRepository @Inject constructor(
             _activeQuests.value = currentQuests
             saveActiveQuests()
 
-            // 완료된 퀘스트는 완료 목록으로 이동
+            
             if (updatedQuest.status == QuestStatus.COMPLETED) {
                 completeQuest(updatedQuest)
             }
@@ -201,7 +201,7 @@ class QuestRepository @Inject constructor(
         _completedQuests.value = currentCompleted
         saveCompletedQuests()
 
-        // 활성 퀘스트에서 제거
+        
         val currentActive = _activeQuests.value.toMutableList()
         currentActive.removeAll { it.id == quest.id }
         _activeQuests.value = currentActive
@@ -214,14 +214,14 @@ class QuestRepository @Inject constructor(
         _walkSessions.value = currentSessions
         saveWalkSessions()
 
-        // 산책 관련 퀘스트 진행도 업데이트
+        
         updateWalkingQuests(session)
     }
 
     private suspend fun updateWalkingQuests(session: WalkSession) {
         val walkingMinutes = (session.totalDuration / 60000).toInt()
 
-        // 산책 시간이 5분 이상일 때만 퀘스트 진행도에 반영
+        
         if (walkingMinutes >= 5) {
             val walkingQuests = _activeQuests.value.filter {
                 it.category == com.example.ppet.model.QuestCategory.EXERCISE &&

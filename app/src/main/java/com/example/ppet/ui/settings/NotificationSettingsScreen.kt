@@ -139,7 +139,7 @@ fun NotificationSettingsScreen(
                     )
 
                     val intervals = listOf("30분", "1시간", "2시간", "4시간", "하루")
-                    var selectedInterval by remember { mutableIntStateOf(2) } // 기본값: 2시간
+                    var selectedInterval by remember { mutableIntStateOf(2) } 
 
                     intervals.forEachIndexed { index, interval ->
                         Row(

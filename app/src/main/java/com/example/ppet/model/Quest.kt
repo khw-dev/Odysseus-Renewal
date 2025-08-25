@@ -2,55 +2,55 @@ package com.example.ppet.model
 
 import java.util.*
 
-// 퀘스트 타입 정의
+
 enum class QuestType {
-    DAILY,      // 일일 퀘스트
-    WEEKLY,     // 주간 퀘스트
-    MONTHLY,    // 월간 퀘스트
-    SPECIAL     // 특별 이벤트 퀘스트
+    DAILY,      
+    WEEKLY,     
+    MONTHLY,    
+    SPECIAL     
 }
 
-// 퀘스트 카테고리
+
 enum class QuestCategory {
-    EXERCISE,    // 운동/산책
-    CARE,        // 돌봄
-    FEEDING,     // 급식
-    HEALTH,      // 건강관리
-    SOCIAL,      // 사회화
-    LEARNING     // 학습/훈련
+    EXERCISE,    
+    CARE,        
+    FEEDING,     
+    HEALTH,      
+    SOCIAL,      
+    LEARNING     
 }
 
-// 퀘스트 상태
+
 enum class QuestStatus {
-    NOT_STARTED, // 시작 안함
-    IN_PROGRESS, // 진행중
-    COMPLETED,   // 완료
-    EXPIRED      // 만료
+    NOT_STARTED, 
+    IN_PROGRESS, 
+    COMPLETED,   
+    EXPIRED      
 }
 
-// 퀘스트 데이터 모델
+
 data class Quest(
     val id: String,
     val title: String,
     val description: String,
     val category: QuestCategory,
     val type: QuestType,
-    val targetValue: Int,           // 목표값 (예: 30분, 3회)
-    val currentProgress: Int = 0,   // 현재 진행도
-    val unit: String,               // 단위 (분, 회, 개 등)
-    val rewardExp: Int,             // 보상 경험치
-    val rewardCoins: Int = 0,       // 보상 코인
-    val startDate: Date,            // 시작일
-    val endDate: Date,              // 종료일
+    val targetValue: Int,           
+    val currentProgress: Int = 0,   
+    val unit: String,               
+    val rewardExp: Int,             
+    val rewardCoins: Int = 0,       
+    val startDate: Date,            
+    val endDate: Date,              
     val status: QuestStatus = QuestStatus.NOT_STARTED,
-    val isAutoDetectable: Boolean,  // 자동 감지 가능 여부
-    val petId: String? = null       // 특정 펫 전용 퀘스트 (null이면 전체)
+    val isAutoDetectable: Boolean,  
+    val petId: String? = null       
 )
 
-// 미리 정의된 퀘스트 템플릿
+
 object QuestTemplates {
 
-    // 일일 퀘스트 템플릿
+    
     fun getDailyQuests(): List<Quest> {
         val today = Date()
         val tomorrow = Calendar.getInstance().apply {
@@ -121,7 +121,7 @@ object QuestTemplates {
         )
     }
 
-    // 주간 퀘스트 템플릿
+    
     fun getWeeklyQuests(): List<Quest> {
         val today = Date()
         val nextWeek = Calendar.getInstance().apply {
@@ -179,7 +179,7 @@ object QuestTemplates {
         )
     }
 
-    // 월간 퀘스트 템플릿
+    
     fun getMonthlyQuests(): List<Quest> {
         val today = Date()
         val nextMonth = Calendar.getInstance().apply {

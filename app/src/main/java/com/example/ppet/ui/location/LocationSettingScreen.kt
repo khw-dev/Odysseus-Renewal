@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.ppet.ui.components.PPetTextField
 import com.example.ppet.ui.theme.NotoSansKR
 import com.example.ppet.ui.theme.OrangePrimary
 
@@ -151,7 +152,7 @@ fun LocationSettingScreen(
                 color = Color.Black
             )
 
-            OutlinedTextField(
+            PPetTextField(
                 value = searchQuery,
                 onValueChange = {
                     searchQuery = it
@@ -162,15 +163,10 @@ fun LocationSettingScreen(
                         searchResults = emptyList()
                     }
                 },
-                label = { Text("주소를 입력하세요", fontFamily = NotoSansKR) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "검색"
-                    )
-                },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                label = "주소 검색",
+                placeholder = "주소를 입력하세요",
+                leadingIcon = Icons.Default.Search,
+                modifier = Modifier.fillMaxWidth()
             )
 
             if (searchResults.isNotEmpty()) {

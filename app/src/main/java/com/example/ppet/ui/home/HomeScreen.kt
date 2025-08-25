@@ -227,7 +227,7 @@ private fun PetCard(
     pet: DataPet,
     onClick: () -> Unit
 ) {
-    // 펫의 캐릭터 찾기
+    
     val petCharacter = pet.characterId?.let { characterId ->
         com.example.ppet.model.PetCharacters.availableCharacters.find { it.id == characterId }
     }

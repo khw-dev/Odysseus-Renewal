@@ -85,23 +85,23 @@ class PetRepository @Inject constructor(
     }
 
     suspend fun getHealthRecordsForPet(petId: String): List<com.example.ppet.data.model.HealthRecord> {
-        // 실제 구현에서는 데이터베이스에서 해당 펫의 건강 기록을 가져옴
-        // 현재는 빈 리스트 반환
+        
+        
         return emptyList()
     }
 
     suspend fun addHealthRecord(healthRecord: com.example.ppet.data.model.HealthRecord) {
-        // 실제 구현에서는 건강 기록을 저장
-        // 현재는 구현하지 않음 (향후 추가 예정)
+        
+        
     }
 
     suspend fun updateHealthRecord(healthRecord: com.example.ppet.data.model.HealthRecord) {
-        // 실제 구현에서는 건강 기록을 업데이트
-        // 현재는 구현하지 않음 (향후 추가 예정)
+        
+        
     }
 
     suspend fun deleteHealthRecord(healthRecordId: String) {
-        // 실제 구현에서는 건강 기록을 삭제
-        // 현재는 구현하지 않음 (향후 추가 예정)
+        
+        
     }
 }

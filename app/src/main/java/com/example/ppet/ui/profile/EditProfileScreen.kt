@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.ppet.ui.components.PPetTextField
 import com.example.ppet.ui.theme.NotoSansKR
 import com.example.ppet.ui.theme.OrangePrimary
 
@@ -152,29 +154,23 @@ fun EditProfileScreen(
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                OutlinedTextField(
+                PPetTextField(
                     value = editedName,
                     onValueChange = { editedName = it },
-                    label = { Text("이름", fontFamily = NotoSansKR) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = OrangePrimary,
-                        focusedLabelColor = OrangePrimary
-                    )
+                    label = "이름",
+                    placeholder = "이름을 입력하세요",
+                    leadingIcon = Icons.Default.Person,
+                    modifier = Modifier.fillMaxWidth()
                 )
 
-                OutlinedTextField(
+                PPetTextField(
                     value = editedEmail,
                     onValueChange = { editedEmail = it },
-                    label = { Text("이메일", fontFamily = NotoSansKR) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
+                    label = "이메일",
+                    placeholder = "이메일을 입력하세요",
+                    leadingIcon = Icons.Default.Email,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = OrangePrimary,
-                        focusedLabelColor = OrangePrimary
-                    )
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 

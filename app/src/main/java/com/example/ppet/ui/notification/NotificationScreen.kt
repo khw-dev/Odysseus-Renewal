@@ -73,7 +73,7 @@ fun NotificationScreen(
         }
     ) { paddingValues ->
         if (notifications.isEmpty()) {
-            // 빈 상태
+            
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -109,7 +109,7 @@ fun NotificationScreen(
                 )
             }
         } else {
-            // 알림 목록
+            
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -160,7 +160,7 @@ private fun NotificationItem(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.Top
         ) {
-            // 읽지 않은 알림 표시
+            
             if (!notification.isRead) {
                 Surface(
                     modifier = Modifier.size(8.dp),
@@ -172,7 +172,7 @@ private fun NotificationItem(
                 Spacer(modifier = Modifier.width(20.dp))
             }
 
-            // 알림 아이콘
+            
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = CircleShape,
@@ -188,7 +188,7 @@ private fun NotificationItem(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // 알림 내용
+            
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -220,7 +220,7 @@ private fun NotificationItem(
                 )
             }
 
-            // 액션 버튼들
+            
             Column {
                 if (!notification.isRead) {
                     IconButton(

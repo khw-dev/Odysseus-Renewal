@@ -14,7 +14,7 @@ import javax.inject.Inject
 data class NotificationSettingsUiState(
     val hasPermission: Boolean = false,
     val isNotificationEnabled: Boolean = true,
-    val notificationInterval: Int = 2 // 기본값: 2시간
+    val notificationInterval: Int = 2 
 )
 
 @HiltViewModel

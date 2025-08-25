@@ -43,7 +43,7 @@ class PetNotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Foreground Service 시작 즉시 startForeground() 호출
+        
         startForeground(FOREGROUND_NOTIFICATION_ID, createForegroundNotification())
 
         startPeriodicNotifications()
@@ -90,7 +90,7 @@ class PetNotificationService : Service() {
     private fun startPeriodicNotifications() {
         serviceScope.launch {
             while (true) {
-                delay(2 * 60 * 60 * 1000L) // 2시간마다 알림
+                delay(2 * 60 * 60 * 1000L) 
                 showPetNotification()
             }
         }

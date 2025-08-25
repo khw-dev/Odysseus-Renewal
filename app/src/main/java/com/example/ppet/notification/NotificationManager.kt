@@ -23,7 +23,7 @@ class NotificationManager @Inject constructor(
                 Manifest.permission.POST_NOTIFICATIONS
             ) == PackageManager.PERMISSION_GRANTED
         } else {
-            true // Android 13 미만에서는 알림 권한이 자동으로 허용됨
+            true 
         }
     }
 

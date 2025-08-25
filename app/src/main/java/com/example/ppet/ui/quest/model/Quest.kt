@@ -1,5 +1,7 @@
 package com.example.ppet.ui.quest.model
 
+import java.util.Date
+
 data class Quest(
     val id: String,
     val title: String,
@@ -10,33 +12,68 @@ data class Quest(
     val maxProgress: Int,
     val isCompleted: Boolean = false,
     val isRewarded: Boolean = false,
-    val iconType: QuestIconType
+    val iconType: QuestIconType,
+    val deadline: Date? = null,
+    val createdAt: Date = Date(),
+    val completedAt: Date? = null,
+    val category: QuestCategory = QuestCategory.GENERAL
 )
 
 enum class QuestType {
-    DAILY,    // 일일 퀘스트
-    WEEKLY,   // 주간 퀘스트
-    SPECIAL   // 특별 퀘스트
+    DAILY,    
+    WEEKLY,   
+    SPECIAL   
 }
 
 enum class QuestIconType {
-    WALK,     // 산책
-    FEED,     // 사료 급여
-    HEALTH,   // 건강 관리
-    PLAY,     // 놀아주기
-    HOSPITAL, // 병원 방문
-    PHOTO,    // 사진 촬영
-    SPECIAL   // 특별 활동
+    WALK,     
+    FEED,     
+    HEALTH,   
+    PLAY,     
+    HOSPITAL, 
+    PHOTO,    
+    SPECIAL   
+}
+
+enum class QuestCategory {
+    ALL,      
+    GENERAL,  
+    CARE,     
+    EXERCISE, 
+    HEALTH,   
+    SOCIAL    
 }
 
 data class UserPoints(
     val totalPoints: Int,
     val todayEarned: Int,
-    val level: Int
-) {
-    val nextLevelPoints: Int
-        get() = (level + 1) * 1000
+    val level: Int,
+    val nextLevelPoints: Int = 0,
+    val currentLevelProgress: Float = 0f
+)
 
-    val currentLevelProgress: Float
-        get() = (totalPoints % 1000) / 1000f
+data class QuestReward(
+    val questId: String,
+    val points: Int,
+    val badge: String? = null,
+    val itemReward: String? = null
+)
+
+data class WalkStats(
+    val totalDistance: Float = 0f,
+    val duration: Long = 0L,
+    val currentSpeed: Float = 0f,
+    val isWalking: Boolean = false,
+    val averageSpeed: Float = 0f,
+    val stepCount: Int = 0
+)
+
+data class QuestProgress(
+    val questId: String,
+    val progress: Int,
+    val maxProgress: Int,
+    val isCompleted: Boolean = false
+) {
+    val progressPercentage: Float
+        get() = if (maxProgress > 0) (progress.toFloat() / maxProgress) * 100f else 0f
 }

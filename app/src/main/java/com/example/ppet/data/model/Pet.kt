@@ -5,14 +5,14 @@ import java.util.Date
 data class Pet(
     val id: String,
     val name: String,
-    val type: String, // 강아지, 고양이 등
-    val breed: String? = null, // 품종
+    val type: String, 
+    val breed: String? = null, 
     val age: Int,
     val weight: Double? = null,
-    val gender: String? = null, // 수컷, 암컷
+    val gender: String? = null, 
     val birthDate: Date? = null,
     val imageUrl: String? = null,
-    val characterId: String? = null, // 선택된 캐릭터 ID 추가
+    val characterId: String? = null, 
     val healthRecords: List<HealthRecord> = emptyList(),
     val isNeutered: Boolean = false,
     val allergies: List<String> = emptyList(),
@@ -37,12 +37,12 @@ data class HealthRecord(
 )
 
 enum class HealthRecordType {
-    VACCINATION,     // 예방접종
-    CHECKUP,        // 건강검진
-    TREATMENT,      // 치료
-    MEDICATION,     // 투약
-    SURGERY,        // 수술
-    DENTAL,         // 치과
-    EMERGENCY,      // 응급처치
-    OTHER          // 기타
+    VACCINATION,     
+    CHECKUP,        
+    TREATMENT,      
+    MEDICATION,     
+    SURGERY,        
+    DENTAL,         
+    EMERGENCY,      
+    OTHER          
 }

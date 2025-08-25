@@ -3,11 +3,11 @@ package com.example.ppet.ui.pet
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,15 +18,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ppet.data.model.Pet
-import com.example.ppet.ui.theme.NotoSansKR
-import com.example.ppet.ui.theme.OrangePrimary
-import java.util.*
+import com.example.ppet.ui.components.*
+import com.example.ppet.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPetScreen(
     onBack: () -> Unit,
-    onSavePet: (Pet) -> Unit
+    onSave: (Pet) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var type by remember { mutableStateOf("") }
@@ -34,35 +33,31 @@ fun AddPetScreen(
     var age by remember { mutableStateOf("") }
     var weight by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
-    var isNeutered by remember { mutableStateOf(false) }
-    var notes by remember { mutableStateOf("") }
 
-    var showTypeDropdown by remember { mutableStateOf(false) }
-    var showGenderDropdown by remember { mutableStateOf(false) }
+    val petTypes = listOf("강아지", "고양이", "토끼", "새", "기타")
+    val genders = listOf("수컷", "암컷")
 
-    val petTypes = listOf("강아지", "고양이", "새", "토끼", "햄스터", "기타")
-    val genderTypes = listOf("수컷", "암컷")
+    
+    val isFormValid = name.isNotBlank() && type.isNotBlank() && age.isNotBlank()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "반려동물 추가",
+                        "반려동물 추가",
                         fontFamily = NotoSansKR,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.SemiBold
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "뒤로가기"
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "뒤로가기")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
+                    containerColor = Color.White,
+                    titleContentColor = TextPrimary
                 )
             )
         }
@@ -70,183 +65,129 @@ fun AddPetScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(BackgroundLight)
                 .padding(paddingValues)
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // 이름 입력
-            OutlinedTextField(
+            
+            PPetTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("이름 *", fontFamily = NotoSansKR) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                label = "이름",
+                placeholder = "반려동물의 이름을 입력하세요",
+                leadingIcon = Icons.Default.Pets,
+                isError = name.isBlank() && name.isNotEmpty(),
+                errorMessage = "이름을 입력해주세요"
             )
 
-            // 동물 종류 선택
-            ExposedDropdownMenuBox(
-                expanded = showTypeDropdown,
-                onExpandedChange = { showTypeDropdown = !showTypeDropdown }
-            ) {
-                OutlinedTextField(
-                    value = type,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("동물 종류 *", fontFamily = NotoSansKR) },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = showTypeDropdown
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor()
-                )
+            
+            PPetDropdownField(
+                value = type,
+                onValueChange = { type = it },
+                label = "동물 종류",
+                options = petTypes,
+                placeholder = "동물 종류를 선택하세요",
+                leadingIcon = Icons.Default.Category,
+                isError = type.isBlank() && type.isNotEmpty(),
+                errorMessage = "동물 종류를 선택해주세요"
+            )
 
-                ExposedDropdownMenu(
-                    expanded = showTypeDropdown,
-                    onDismissRequest = { showTypeDropdown = false }
-                ) {
-                    petTypes.forEach { petType ->
-                        DropdownMenuItem(
-                            text = { Text(petType, fontFamily = NotoSansKR) },
-                            onClick = {
-                                type = petType
-                                showTypeDropdown = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // 품종 입력
-            OutlinedTextField(
+            
+            PPetTextField(
                 value = breed,
                 onValueChange = { breed = it },
-                label = { Text("품종", fontFamily = NotoSansKR) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                label = "품종",
+                placeholder = "품종을 입력하세요 (선택사항)",
+                leadingIcon = Icons.Default.Info
             )
 
-            // 나이 입력
-            OutlinedTextField(
+            
+            PPetTextField(
                 value = age,
                 onValueChange = { age = it },
-                label = { Text("나이 *", fontFamily = NotoSansKR) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+                label = "나이",
+                placeholder = "나이를 입력하세요",
+                leadingIcon = Icons.Default.Cake,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                suffix = { Text("세", fontFamily = NotoSansKR) }
+                isError = age.isBlank() && age.isNotEmpty(),
+                errorMessage = "나이를 입력해주세요",
+                trailingIcon = {
+                    Text(
+                        text = "세",
+                        fontFamily = NotoSansKR,
+                        fontSize = 16.sp,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                }
             )
 
-            // 체중 입력
-            OutlinedTextField(
+            
+            PPetTextField(
                 value = weight,
                 onValueChange = { weight = it },
-                label = { Text("체중", fontFamily = NotoSansKR) },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
+                label = "체중",
+                placeholder = "체중을 입력하세요 (선택사항)",
+                leadingIcon = Icons.Default.Scale,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                suffix = { Text("kg", fontFamily = NotoSansKR) }
-            )
-
-            // 성별 선택
-            ExposedDropdownMenuBox(
-                expanded = showGenderDropdown,
-                onExpandedChange = { showGenderDropdown = !showGenderDropdown }
-            ) {
-                OutlinedTextField(
-                    value = gender,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("성별", fontFamily = NotoSansKR) },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(
-                            expanded = showGenderDropdown
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = showGenderDropdown,
-                    onDismissRequest = { showGenderDropdown = false }
-                ) {
-                    genderTypes.forEach { genderType ->
-                        DropdownMenuItem(
-                            text = { Text(genderType, fontFamily = NotoSansKR) },
-                            onClick = {
-                                gender = genderType
-                                showGenderDropdown = false
-                            }
-                        )
-                    }
+                trailingIcon = {
+                    Text(
+                        text = "kg",
+                        fontFamily = NotoSansKR,
+                        fontSize = 16.sp,
+                        color = TextSecondary,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
                 }
-            }
-
-            // 중성화 여부
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Checkbox(
-                    checked = isNeutered,
-                    onCheckedChange = { isNeutered = it },
-                    colors = CheckboxDefaults.colors(checkedColor = OrangePrimary)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "중성화 완료",
-                    fontFamily = NotoSansKR,
-                    fontSize = 16.sp
-                )
-            }
-
-            // 메모
-            OutlinedTextField(
-                value = notes,
-                onValueChange = { notes = it },
-                label = { Text("메모", fontFamily = NotoSansKR) },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 3,
-                maxLines = 5
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            
+            PPetDropdownField(
+                value = gender,
+                onValueChange = { gender = it },
+                label = "성별",
+                options = genders,
+                placeholder = "성별을 선택하세요 (선택사항)",
+                leadingIcon = Icons.Default.Wc
+            )
 
-            // 저장 버튼
+            Spacer(modifier = Modifier.height(20.dp))
+
+            
             Button(
                 onClick = {
-                    if (name.isNotBlank() && type.isNotBlank() && age.isNotBlank()) {
-                        val newPet = Pet(
-                            id = UUID.randomUUID().toString(),
-                            name = name.trim(),
+                    if (isFormValid) {
+                        val pet = Pet(
+                            id = "",
+                            name = name,
                             type = type,
-                            breed = if (breed.isNotBlank()) breed.trim() else null,
+                            breed = breed.ifBlank { null },
                             age = age.toIntOrNull() ?: 0,
                             weight = weight.toDoubleOrNull(),
-                            gender = if (gender.isNotBlank()) gender else null,
-                            isNeutered = isNeutered,
-                            notes = if (notes.isNotBlank()) notes.trim() else null
+                            gender = gender.ifBlank { null },
+                            imageUrl = null
                         )
-                        onSavePet(newPet)
+                        onSave(pet)
                     }
                 },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = OrangePrimary),
-                enabled = name.isNotBlank() && type.isNotBlank() && age.isNotBlank()
+                enabled = isFormValid,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = OrangePrimary,
+                    disabledContainerColor = GrayLight
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "저장",
+                    text = "저장하기",
                     fontFamily = NotoSansKR,
-                    fontWeight = FontWeight.Medium,
                     fontSize = 16.sp,
-                    modifier = Modifier.padding(vertical = 4.dp)
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
                 )
             }
         }

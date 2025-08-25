@@ -246,7 +246,7 @@ fun AppSettingsScreen(
         )
     }
 
-    // 앱 정보 다이얼로그
+    
     if (showAboutDialog) {
         AlertDialog(
             onDismissRequest = { showAboutDialog = false },

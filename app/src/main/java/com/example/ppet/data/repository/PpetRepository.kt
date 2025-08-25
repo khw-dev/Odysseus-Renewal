@@ -12,7 +12,7 @@ class PpetRepository @Inject constructor(
     private val firebaseService: FirebaseService
 ) {
 
-    // 사용자 관련 메서드
+    
     suspend fun saveUserInfo(userInfo: UserInfo): Result<Unit> {
         return firebaseService.saveUserInfo(userInfo)
     }
@@ -25,7 +25,7 @@ class PpetRepository @Inject constructor(
         return firebaseService.updateUserLevel(expGain, coinGain)
     }
 
-    // 펫 관련 메서드
+    
     suspend fun savePet(pet: Pet): Result<String> {
         return firebaseService.savePet(pet)
     }
@@ -38,7 +38,7 @@ class PpetRepository @Inject constructor(
         return firebaseService.deletePet(petId)
     }
 
-    // 건강 기록 관련 메서드
+    
     suspend fun saveHealthRecord(healthRecord: HealthRecord): Result<String> {
         return firebaseService.saveHealthRecord(healthRecord)
     }
@@ -47,7 +47,7 @@ class PpetRepository @Inject constructor(
         return firebaseService.deleteHealthRecord(recordId, petId)
     }
 
-    // 퀘스트 관련 메서드
+    
     suspend fun saveQuest(quest: Quest): Result<String> {
         return firebaseService.saveQuest(quest)
     }
@@ -60,7 +60,7 @@ class PpetRepository @Inject constructor(
         return firebaseService.completeQuest(questId)
     }
 
-    // 활동 기록 관련 메서드
+    
     suspend fun saveWalkRecord(
         petId: String,
         duration: Int,
@@ -102,7 +102,7 @@ class PpetRepository @Inject constructor(
         )
     }
 
-    // 알림 관련 메서드
+    
     suspend fun saveNotification(
         title: String,
         message: String,
@@ -113,16 +113,16 @@ class PpetRepository @Inject constructor(
         return firebaseService.saveNotification(title, message, type, petId, actionData)
     }
 
-    // 편의 메서드들
+    
     suspend fun completeQuestAndUpdateUser(questId: String, expReward: Int, coinReward: Int): Result<Unit> {
         return try {
-            // 퀘스트 완료
+            
             firebaseService.completeQuest(questId).getOrThrow()
 
-            // 사용자 레벨/경험치 업데이트
+            
             firebaseService.updateUserLevel(expReward, coinReward).getOrThrow()
 
-            // 완료 알림 저장
+            
             firebaseService.saveNotification(
                 title = "퀘스트 완료!",
                 message = "경험치 $expReward, 코인 $coinReward 를 획득했습니다!",
